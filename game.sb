@@ -13,21 +13,27 @@ doors[1] = Shapes.AddImage("C:\DM\door_up.png")
 doors[2] = Shapes.AddImage("C:\DM\door_left.png")
 doors[3] = Shapes.AddImage("C:\DM\door_down.png")
 doors[4] = Shapes.AddImage("C:\DM\door_right.png")
+chest = Shapes.AddImage("C:\DM\chest.png")
+monster = Shapes.AddImage("C:\DM\monster.png")
 
-' create maze
-CreateMaze()
+Shapes.HideShape(monster)
+Shapes.HideShape(chest)
+
+' create first room
+room[1] = 1
+room[2] = 1
+room[3] = 1
+room[4] = 1
 
 ' create player
-player["x"] = 1
-player["y"] = 1
 player["health"] = 100
 player["damage"] = 0
 player["armor"] = 0
 
+UpdateUI()
+
 ' game loop
 While player["health"] > 0
-  UpdateRoom()
-  UpdateUI()
 EndWhile
 
 ' input control
@@ -37,47 +43,71 @@ Sub HandleKey
     Program.End()
   EndIf
   If key = "W" Then
-    player["y"] = player["y"] + 1
+    If room[1] = 1 Then
+      Stack.PushValue("door", 3)
+      UpdateRoom()
+      UpdateUI()
+    EndIf
   EndIf
   If key = "D" Then
-    player["x"] = player["x"] + 1
+    If room[4] = 1 Then
+      Stack.PushValue("door", 2)
+      UpdateRoom()
+      UpdateUI()
+    EndIf
   EndIf
   If key = "S" Then
-    player["y"] = player["y"] - 1
+    If room[3] = 1 Then
+      Stack.PushValue("door", 1)
+      UpdateRoom()
+      UpdateUI()
+    EndIf
   EndIf
   If key = "A" Then
-    player["x"] = player["x"] - 1
+    If room[2] = 1 Then
+      Stack.PushValue("door", 4)
+      UpdateRoom()
+      UpdateUI()
+    EndIf
   EndIf
 EndSub
 
 ' draw room
 Sub UpdateRoom
+  opened_door = Stack.PopValue("door")
+  Shapes.HideShape(monster)
+  Shapes.HideShape(chest)
+  
   For i = 1 To 4
-    If maze[player["x"]][player["y"]]["doors"][i] = 1 Then
+    If i = opened_door Then
       Shapes.ShowShape(doors[i])
+      room[i] = 1
     Else
-      Shapes.HideShape(doors[i])
-    EndIf
+      If Math.GetRandomNumber(100) < 50 Then
+        Shapes.ShowShape(doors[i])
+        room[i] = 1
+      Else
+        Shapes.HideShape(doors[i])
+        room[i] = 0
+      EndIf
+    Endif  
   EndFor
+
+  If Math.GetRandomNumber(100) > 80 Then
+    Shapes.ShowShape(chest)
+  ElseIf Math.GetRandomNumber(100) > 90 Then
+    Shapes.ShowShape(monster)
+  EndIf
 EndSub
 
 'draw UI
 Sub UpdateUI
+  GraphicsWindow.BrushColor = "Grey"
+  GraphicsWindow.FillRectangle(0, 600, 800, 100)
+  GraphicsWindow.BrushColor = "Green"
   GraphicsWindow.FontSize = 16
   GraphicsWindow.FontBold = 0
-  GraphicsWindow.DrawBoundText(10, 610, 100, "Health: " + player["health"])
-  GraphicsWindow.DrawBoundText(10, 630, 100, "Damage: " + player["damage"])
-  GraphicsWindow.DrawBoundText(10, 650, 100, "Armor: " + player["armor"])
-EndSub
-
-'create maze
-Sub CreateMaze
-  For x = 1 To 10
-    For y = 1 To 10
-      maze[x][y]["doors"][1] = 1
-      maze[x][y]["doors"][2] = 1
-      maze[x][y]["doors"][3] = 1
-      maze[x][y]["doors"][4] = 1
-    EndFor
-  EndFor
+  GraphicsWindow.DrawText(10, 610, "Health: " + player["health"])
+  GraphicsWindow.DrawText(10, 630, "Damage: " + player["damage"])
+  GraphicsWindow.DrawText(10, 650, "Armor: " + player["armor"])
 EndSub
