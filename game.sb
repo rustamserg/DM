@@ -12,7 +12,7 @@ game["record"] = 0
 LoadPreGame()
 
 ' game loop
-While game["state"] <> "endgame"
+While ("True")
 EndWhile
 
 ' input control
@@ -175,7 +175,7 @@ Sub LoadPostGame
   GraphicsWindow.BrushColor = "Red"
   GraphicsWindow.FontSize = 16
   GraphicsWindow.FontBold = 0
-  GraphicsWindow.DrawText(200, 300, "YOU LOOSE. PRESS Q TO TRY AGAIN")
+  GraphicsWindow.DrawText(200, 300, "YOU LOOSE. PRESS Q TO TRY AGAIN OR ESCAPE TO EXIT")
   
   If game["record"] < player["rooms"] Then
     game["record"] = player["rooms"]
