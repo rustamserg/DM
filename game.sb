@@ -1,39 +1,18 @@
 ' game initialization
 GraphicsWindow.KeyDown = HandleKey
-GraphicsWindow.BackgroundColor = GraphicsWindow.GetColorFromRGB(0, 0, 0)
 GraphicsWindow.Clear()
 GraphicsWindow.Title = "D.M."
 GraphicsWindow.Height = 700
 GraphicsWindow.Width = 800
 GraphicsWindow.Show()
 
-' load assets
-room = Shapes.AddImage("C:\DM\room.png")
-doors[1] = Shapes.AddImage("C:\DM\door_up.png")
-doors[2] = Shapes.AddImage("C:\DM\door_left.png")
-doors[3] = Shapes.AddImage("C:\DM\door_down.png")
-doors[4] = Shapes.AddImage("C:\DM\door_right.png")
-chest = Shapes.AddImage("C:\DM\chest.png")
-monster = Shapes.AddImage("C:\DM\monster.png")
+game["state"] = "pregame"
+game["record"] = 0
 
-Shapes.HideShape(monster)
-Shapes.HideShape(chest)
-
-' create first room
-room[1] = 1
-room[2] = 1
-room[3] = 1
-room[4] = 1
-
-' create player
-player["health"] = 100
-player["damage"] = 0
-player["armor"] = 0
-
-UpdateUI()
+LoadPreGame()
 
 ' game loop
-While player["health"] > 0
+While game["state"] <> "endgame"
 EndWhile
 
 ' input control
@@ -42,41 +21,76 @@ Sub HandleKey
   If key = "Escape" Then
     Program.End()
   EndIf
+  
+  If game["state"] = "pregame" Then
+    UpdatePreGame()
+  EndIf
+  If game["state"] = "ingame" Then
+    UpdateInGame()
+  EndIf
+  If game["state"] = "postgame" Then
+    UpdatePostGame()
+  EndIf
+EndSub
+
+Sub UpdateInGame
+  key = GraphicsWindow.LastKey
   If key = "W" Then
     If room[1] = 1 Then
       Stack.PushValue("door", 3)
-      UpdateRoom()
-      UpdateUI()
+      EnterRoom()
     EndIf
   EndIf
   If key = "D" Then
     If room[4] = 1 Then
       Stack.PushValue("door", 2)
-      UpdateRoom()
-      UpdateUI()
+      EnterRoom()
     EndIf
   EndIf
   If key = "S" Then
     If room[3] = 1 Then
       Stack.PushValue("door", 1)
-      UpdateRoom()
-      UpdateUI()
+      EnterRoom()
     EndIf
   EndIf
   If key = "A" Then
     If room[2] = 1 Then
       Stack.PushValue("door", 4)
-      UpdateRoom()
-      UpdateUI()
+      EnterRoom()
     EndIf
+  EndIf
+
+  DrawUI()
+
+  If player["health"] < 1 Then
+    game["state"] = "postgame"
+    LoadPostGame()
+  EndIf
+EndSub
+
+Sub UpdatePreGame
+  key = GraphicsWindow.LastKey
+  If key = "Q" Then
+    game["state"] = "ingame"
+    LoadInGame()
+  EndIf
+EndSub
+
+Sub UpdatePostGame
+  key = GraphicsWindow.LastKey
+  If key = "Q" Then
+    game["state"] = "ingame"
+    LoadInGame()
   EndIf
 EndSub
 
 ' draw room
-Sub UpdateRoom
+Sub EnterRoom
   opened_door = Stack.PopValue("door")
+  
   Shapes.HideShape(monster)
   Shapes.HideShape(chest)
+  Shapes.ShowShape(room)
   
   For i = 1 To 4
     If i = opened_door Then
@@ -95,14 +109,18 @@ Sub UpdateRoom
 
   If Math.GetRandomNumber(100) > 80 Then
     Shapes.ShowShape(chest)
+    player["health"] = player["health"] + 5
   ElseIf Math.GetRandomNumber(100) > 90 Then
     Shapes.ShowShape(monster)
   EndIf
+  
+  player["health"] = player["health"] - 10
+  player["rooms"] = player["rooms"] + 1
 EndSub
 
 'draw UI
-Sub UpdateUI
-  GraphicsWindow.BrushColor = "Grey"
+Sub DrawUI
+  GraphicsWindow.BrushColor = GraphicsWindow.GetColorFromRGB(10, 10, 10)
   GraphicsWindow.FillRectangle(0, 600, 800, 100)
   GraphicsWindow.BrushColor = "Green"
   GraphicsWindow.FontSize = 16
@@ -110,4 +128,59 @@ Sub UpdateUI
   GraphicsWindow.DrawText(10, 610, "Health: " + player["health"])
   GraphicsWindow.DrawText(10, 630, "Damage: " + player["damage"])
   GraphicsWindow.DrawText(10, 650, "Armor: " + player["armor"])
+  GraphicsWindow.DrawText(10, 670, "Rooms: " + player["rooms"])
 EndSub
+
+Sub LoadInGame
+  GraphicsWindow.Clear()
+  
+  For i = 1 To 4
+    room[i] = 1
+  EndFor
+
+  player["health"] = 110
+  player["damage"] = 0
+  player["armor"] = 0
+  player["rooms"] = 0
+  
+  room = Shapes.AddImage("C:\DM\room.png")
+  doors[1] = Shapes.AddImage("C:\DM\door_up.png")
+  doors[2] = Shapes.AddImage("C:\DM\door_left.png")
+  doors[3] = Shapes.AddImage("C:\DM\door_down.png")
+  doors[4] = Shapes.AddImage("C:\DM\door_right.png")
+  chest = Shapes.AddImage("C:\DM\chest.png")
+  monster = Shapes.AddImage("C:\DM\monster.png")
+  
+  Stack.PushValue("door", 3)
+  EnterRoom()
+  DrawUI()
+EndSub
+
+Sub LoadPreGame
+  GraphicsWindow.Clear()
+  
+  GraphicsWindow.BrushColor = GraphicsWindow.GetColorFromRGB(50, 50, 50)
+  GraphicsWindow.FillRectangle(0, 0, 800, 700)
+  GraphicsWindow.BrushColor = "Green"
+  GraphicsWindow.FontSize = 16
+  GraphicsWindow.FontBold = 0
+  GraphicsWindow.DrawText(200, 300, "PRESS Q TO ENTER THE MAZE")
+EndSub
+
+Sub LoadPostGame
+  GraphicsWindow.Clear()
+  
+  GraphicsWindow.BrushColor = GraphicsWindow.GetColorFromRGB(50, 50, 50)
+  GraphicsWindow.FillRectangle(0, 0, 800, 700)
+  GraphicsWindow.BrushColor = "Red"
+  GraphicsWindow.FontSize = 16
+  GraphicsWindow.FontBold = 0
+  GraphicsWindow.DrawText(200, 300, "YOU LOOSE. PRESS Q TO TRY AGAIN")
+  
+  If game["record"] < player["rooms"] Then
+    game["record"] = player["rooms"]
+    GraphicsWindow.DrawText(200, 330, "NEW RECORD. SURVIVED ROOMS " + game["record"])
+  Else
+    GraphicsWindow.DrawText(200, 330, "SURVIVED ROOMS " + player["rooms"] + ". HIGHEST RECORD " + game["record"])
+  EndIf
+EndSub  
