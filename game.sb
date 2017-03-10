@@ -138,7 +138,7 @@ Sub LoadInGame
     room[i] = 1
   EndFor
 
-  player["health"] = 110
+  player["health"] = 200
   player["damage"] = 0
   player["armor"] = 0
   player["rooms"] = 0
@@ -175,7 +175,7 @@ Sub LoadPostGame
   GraphicsWindow.BrushColor = "Red"
   GraphicsWindow.FontSize = 16
   GraphicsWindow.FontBold = 0
-  GraphicsWindow.DrawText(200, 300, "YOU LOOSE. PRESS Q TO TRY AGAIN OR ESCAPE TO EXIT")
+  GraphicsWindow.DrawText(200, 300, "YOU DIED. PRESS Q TO TRY AGAIN OR ESCAPE TO EXIT")
   
   If game["record"] < player["rooms"] Then
     game["record"] = player["rooms"]
