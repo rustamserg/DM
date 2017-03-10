@@ -28,6 +28,12 @@ Sub HandleKey
   If game["state"] = "ingame" Then
     UpdateInGame()
   EndIf
+  If game["state"] = "open_chest" Then
+    UpdateChest()
+  EndIf
+  If game["state"] = "fight_monster" Then
+    UpdateFight()
+  EndIf
   If game["state"] = "postgame" Then
     UpdatePostGame()
   EndIf
@@ -60,12 +66,16 @@ Sub UpdateInGame
     EndIf
   EndIf
 
-  DrawUI()
-
   If player["health"] < 1 Then
     game["state"] = "postgame"
     LoadPostGame()
+  ElseIf room["chest"] = 1 Then
+    game["state"] = "open_chest"
+  ElseIf room["monster"] = 1 Then
+    game["state"] = "fight_monster"
   EndIf
+    
+  DrawUI()
 EndSub
 
 Sub UpdatePreGame
@@ -84,6 +94,88 @@ Sub UpdatePostGame
   EndIf
 EndSub
 
+Sub UpdateChest
+  key = GraphicsWindow.LastKey
+  If key = "E" Then
+    game["state"] = "ingame"
+    Shapes.HideShape(chest)
+    DrawUI()
+  EndIf
+  If key = "Q" Then
+    OpenChest()
+    game["state"] = "ingame"
+    DrawUI()
+    DrawChestResult()
+  EndIf
+EndSub
+
+Sub OpenChest
+  If Math.GetRandomNumber(100) < 50 Then
+    player["armor_add"] = Math.GetRandomNumber(20) 
+    player["armor"] = player["armor"] + player["armor_add"] 
+    If player["armor"] > 100 Then
+      player["armor"] = 100
+    EndIf
+  Elseif Math.GetRandomNumber(100) < 50 Then
+    player["damage_add"] = Math.GetRandomNumber(20)
+    player["damage"] = player["gamage"] + player["damage_add"]
+    If player["damage"] > 100 Then
+      player["damage"] = 100
+    EndIf
+  EndIf
+  Shapes.HideShape(chest)
+EndSub
+
+Sub DrawChestResult
+  If player["damage_add"] > 0 Then
+    GraphicsWindow.BrushColor = "Yellow"
+    GraphicsWindow.DrawText(400, 610, "DAMAGE INCREASED TO " + player["damage_add"])
+    player["damage_add"] = 0
+  ElseIf player["armor_add"] > 0 Then
+    GraphicsWindow.BrushColor = "Yellow"
+    GraphicsWindow.DrawText(400, 610, "ARMOR INCREASED TO " + player["armor_add"])
+    player["armor_add"] = 0
+  Else
+    GraphicsWindow.BrushColor = "Yellow"
+    GraphicsWindow.DrawText(400, 610, "NOTHING FOUND")
+  EndIf
+EndSub
+
+Sub UpdateFight
+  key = GraphicsWindow.LastKey
+  If key = "E" Then
+    game["state"] = "ingame"
+    EscapeMonster()
+    game["state"] = "ingame"
+    DrawUI()
+    DrawEscapeResult()
+  EndIf
+  If key = "Q" Then
+    FightMonster()
+    game["state"] = "ingame"
+    DrawUI()
+    DrawFightResult()
+  EndIf
+EndSub
+
+Sub FightMonster
+  Shapes.HideShape(monster)
+EndSub
+
+Sub DrawFightResult
+  GraphicsWindow.BrushColor = "Yellow"
+  GraphicsWindow.DrawText(400, 610, "YOU WIN")
+EndSub
+
+Sub EscapeMonster
+  Shapes.HideShape(monster)
+EndSub
+
+Sub DrawEscapeResult
+  GraphicsWindow.BrushColor = "Yellow"
+  GraphicsWindow.DrawText(400, 610, "YOU ESCAPED")
+EndSub
+
 ' draw room
 Sub EnterRoom
   opened_door = Stack.PopValue("door")
@@ -91,6 +183,9 @@ Sub EnterRoom
   Shapes.HideShape(monster)
   Shapes.HideShape(chest)
   Shapes.ShowShape(room)
+  
+  room["chest"] = 0
+  room["monster"] = 0
   
   For i = 1 To 4
     If i = opened_door Then
@@ -106,12 +201,15 @@ Sub EnterRoom
       EndIf
     Endif  
   EndFor
-
-  If Math.GetRandomNumber(100) > 80 Then
-    Shapes.ShowShape(chest)
-    player["health"] = player["health"] + 5
-  ElseIf Math.GetRandomNumber(100) > 90 Then
-    Shapes.ShowShape(monster)
+ 
+  If player["rooms"] > 2 Then 
+    If Math.GetRandomNumber(100) > 80 Then
+      Shapes.ShowShape(chest)
+      room["chest"] = 1
+    ElseIf Math.GetRandomNumber(100) > 90 Then
+      Shapes.ShowShape(monster)
+      room["monster"] = 1
+    EndIf
   EndIf
   
   player["health"] = player["health"] - 10
@@ -129,6 +227,14 @@ Sub DrawUI
   GraphicsWindow.DrawText(10, 630, "Damage: " + player["damage"])
   GraphicsWindow.DrawText(10, 650, "Armor: " + player["armor"])
   GraphicsWindow.DrawText(10, 670, "Rooms: " + player["rooms"])
+  
+  If game["state"] = "open_chest" Then
+    GraphicsWindow.BrushColor = "Red"
+    GraphicsWindow.DrawText(400, 610, "PRESS 'Q' TO OPEN CHEST OR 'E' TO IGNORE")
+  ElseIf game["state"] = "fight_monster" Then
+    GraphicsWindow.BrushColor = "Red"
+    GraphicsWindow.DrawText(400, 610, "PRESS 'Q' TO FIGHT MONSTER OR 'E' TO ESCAPE")
+  EndIf
 EndSub
 
 Sub LoadInGame
@@ -142,6 +248,8 @@ Sub LoadInGame
   player["damage"] = 0
   player["armor"] = 0
   player["rooms"] = 0
+  player["damage_add"] = 0
+  player["armor_add"] = 0
   
   room = Shapes.AddImage("C:\DM\room.png")
   doors[1] = Shapes.AddImage("C:\DM\door_up.png")
@@ -164,7 +272,7 @@ Sub LoadPreGame
   GraphicsWindow.BrushColor = "Green"
   GraphicsWindow.FontSize = 16
   GraphicsWindow.FontBold = 0
-  GraphicsWindow.DrawText(200, 300, "PRESS Q TO ENTER THE MAZE")
+  GraphicsWindow.DrawText(300, 300, "PRESS Q TO ENTER THE MAZE")
 EndSub
 
 Sub LoadPostGame
@@ -175,12 +283,13 @@ Sub LoadPostGame
   GraphicsWindow.BrushColor = "Red"
   GraphicsWindow.FontSize = 16
   GraphicsWindow.FontBold = 0
-  GraphicsWindow.DrawText(200, 300, "YOU DIED. PRESS Q TO TRY AGAIN OR ESCAPE TO EXIT")
+  GraphicsWindow.DrawText(180, 300, "YOU DIED. PRESS Q TO TRY AGAIN OR ESCAPE TO EXIT")
   
+  GraphicsWindow.BrushColor = "Green"
   If game["record"] < player["rooms"] Then
     game["record"] = player["rooms"]
-    GraphicsWindow.DrawText(200, 330, "NEW RECORD. SURVIVED ROOMS " + game["record"])
+    GraphicsWindow.DrawText(230, 330, "NEW RECORD. SURVIVED ROOMS " + game["record"])
   Else
-    GraphicsWindow.DrawText(200, 330, "SURVIVED ROOMS " + player["rooms"] + ". HIGHEST RECORD " + game["record"])
+    GraphicsWindow.DrawText(230, 330, "SURVIVED ROOMS " + player["rooms"] + ". HIGHEST RECORD " + game["record"])
   EndIf
 EndSub  
