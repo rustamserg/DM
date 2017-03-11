@@ -125,9 +125,9 @@ Sub OpenChest
       player["new_damage"] = damage
       player["damage"] = damage      
     EndIf
-  ElseIf dice = 4 Or dice = 11 Then
+  ElseIf dice = 4 Or dice = 11 Or dice = 12 Then
     player["health_poison"] = Math.GetRandomNumber(20)
-    player["health"] = Math.Max(0, player["health"] - player["health_poison"])
+    player["health"] = Math.Max(1, player["health"] - player["health_poison"])
   EndIf
 EndSub
 
@@ -167,12 +167,60 @@ Sub UpdateFight
 EndSub
 
 Sub FightMonster
+  monster["damage"] = Math.GetRandomNumber(100)
+  monster["health"] = Math.GetRandomNumber(100)
+  fight["player_damage"] = 0
+  fight["monster_damage"] = 0
+  
+  dice = Math.GetRandomNumber(12)
+  If dice = 2 Or dice = 4 Or dice = 12 Then
+    fight["turn"] = "player"
+    While monster["health"] > 0 Or player["health"] > 1
+      player_dmg = Math.GetRandomNumber(player["damage"])
+      player_arm = Math.GetRandomNumber(player["armor"])
+      monster_dmg = Math.GetRandomNumber(monster["damage"])
+      fight["player_damage"] = fight["player_damage"] + player_dmg
+      monster["health"] = Math.Max(0, monster["health"] - player_dmg)
+      If monster["health"] > 0 Then
+        fight["monster_damage"] = fight["monster_damage"] + monster_dmg
+        player["health"] = Math.Max(1, player["health"] - monster_dmg + player_arm)
+      EndIf
+    EndWhile
+  Else
+    fight["turn"] = "monster"
+    While monster["health"] > 0 Or player["health"] > 1
+      player_dmg = Math.GetRandomNumber(player["damage"])
+      player_arm = Math.GetRandomNumber(player["armor"])
+      monster_dmg = Math.GetRandomNumber(monster["damage"])
+      fight["monster_damage"] = fight["monster_damage"] + monster_dmg
+      player["health"] = Math.Max(1, player["health"] - monster_dmg + player_arm)
+      If player["health"] > 1 Then
+        fight["player_damage"] = fight["player_damage"] + player_dmg
+        monster["health"] = Math.Max(0, monster["health"] - player_dmg)
+      EndIf
+    EndWhile
+  EndIf
+  
   Shapes.HideShape(monster)
 EndSub
 
 Sub DrawFightResult
   GraphicsWindow.BrushColor = "Yellow"
-  GraphicsWindow.DrawText(400, 610, "YOU WIN")
+  GraphicsWindow.DrawText(400, 610, "Monster attack: " + monster["damage"])
+  GraphicsWindow.DrawText(400, 630, "Monster health: " + monster["health"])
+
+  GraphicsWindow.BrushColor = "Green"
+  GraphicsWindow.DrawText(400, 650, "First attack: " + fight["turn"])
+  GraphicsWindow.DrawText(400, 670, "Damage received: " + fight["monster_damage"])
+  GraphicsWindow.DrawText(400, 690, "Damage given: " + fight["monster_damage"])
+  
+  If player["health"] = 1 Then
+    GraphicsWindow.BrushColor = "Red"
+    GraphicsWindow.DrawText(600, 610, "Monster is run out, but you are too weak")
+  Else
+    GraphicsWindow.BrushColor = "Green"
+    GraphicsWindow.DrawText(600, 610, "Monster is slained")
+  EndIf
 EndSub
 
 Sub EscapeMonster
