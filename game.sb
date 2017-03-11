@@ -84,13 +84,13 @@ Sub LoadInGame
   player["new_armor"] = 0
   player["health_poison"] = 0
   
-  room = Shapes.AddImage("C:\DM\room.png")
+  room_image = Shapes.AddImage("C:\DM\room.png")
   doors[1] = Shapes.AddImage("C:\DM\door_up.png")
   doors[2] = Shapes.AddImage("C:\DM\door_left.png")
   doors[3] = Shapes.AddImage("C:\DM\door_down.png")
   doors[4] = Shapes.AddImage("C:\DM\door_right.png")
-  chest = Shapes.AddImage("C:\DM\chest.png")
-  monster = Shapes.AddImage("C:\DM\monster.png")
+  chest_image = Shapes.AddImage("C:\DM\chest.png")
+  monster_image = Shapes.AddImage("C:\DM\monster.png")
   
   room["open_door"] = 3
   EnterRoom()
@@ -171,7 +171,7 @@ Sub DrawGame
 EndSub
 
 Sub DrawRoom
-  Shapes.ShowShape(room)
+  Shapes.ShowShape(room_image)
 
   For i = 1 To 4
     If room[i] = 1 Then
@@ -182,15 +182,15 @@ Sub DrawRoom
   EndFor
   
   If room["chest"] = 1 Then
-    Shapes.ShowShape(chest)
+    Shapes.ShowShape(chest_image)
   Else
-    Shapes.HideShape(chest)
+    Shapes.HideShape(chest_image)
   EndIf
   
   If room["monster"] = 1 Then
-    Shapes.ShowShape(monster)
+    Shapes.ShowShape(monster_image)
   Else
-    Shapes.HideShape(monster)
+    Shapes.HideShape(monster_image)
   EndIf
 EndSub
 
