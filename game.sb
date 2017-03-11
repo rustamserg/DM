@@ -110,31 +110,40 @@ Sub UpdateChest
 EndSub
 
 Sub OpenChest
-  If Math.GetRandomNumber(100) < 50 Then
-    player["armor_add"] = Math.GetRandomNumber(20) 
-    player["armor"] = player["armor"] + player["armor_add"] 
-    If player["armor"] > 100 Then
-      player["armor"] = 100
-    EndIf
-  Elseif Math.GetRandomNumber(100) < 50 Then
-    player["damage_add"] = Math.GetRandomNumber(20)
-    player["damage"] = player["gamage"] + player["damage_add"]
-    If player["damage"] > 100 Then
-      player["damage"] = 100
-    EndIf
-  EndIf
+  dice = Math.GetRandomNumber(12)
   Shapes.HideShape(chest)
+  
+  If dice = 1 Or dice = 3 Or dice = 5 Then
+    armor = Math.GetRandomNumber(100)
+    If armor > player["armor"] Then
+      player["new_armor"] = armor
+      player["armor"] = armor      
+    EndIf
+  ElseIf dice = 6 Or dice = 8 Or dice = 10 Then
+    damage = Math.GetRandomNumber(100)
+    If damage > player["damage"] Then
+      player["new_damage"] = damage
+      player["damage"] = damage      
+    EndIf
+  ElseIf dice = 4 Or dice = 11 Then
+    player["health_poison"] = Math.GetRandomNumber(20)
+    player["health"] = Math.Max(0, player["health"] - player["health_poison"])
+  EndIf
 EndSub
 
 Sub DrawChestResult
-  If player["damage_add"] > 0 Then
+  If player["new_damage"] > 0 Then
     GraphicsWindow.BrushColor = "Yellow"
-    GraphicsWindow.DrawText(400, 610, "DAMAGE INCREASED TO " + player["damage_add"])
-    player["damage_add"] = 0
-  ElseIf player["armor_add"] > 0 Then
+    GraphicsWindow.DrawText(400, 610, "FOUND NEW WEAPON, DAMAGE INCREASED TO " + player["new_damage"])
+    player["new_damage"] = 0
+  ElseIf player["new_armor"] > 0 Then
     GraphicsWindow.BrushColor = "Yellow"
-    GraphicsWindow.DrawText(400, 610, "ARMOR INCREASED TO " + player["armor_add"])
-    player["armor_add"] = 0
+    GraphicsWindow.DrawText(400, 610, "FOUND NEW ARMOR, INCREASED TO " + player["new_armor"])
+    player["new_armor"] = 0
+  ElseIf player["health_poison"] > 0 Then
+    GraphicsWindow.BrushColor = "Red"
+    GraphicsWindow.DrawText(400, 610, "CHEST WAS POISONED, HEALTH DAMAGE " + player["health_poison"])
+    player["health_poison"] = 0
   Else
     GraphicsWindow.BrushColor = "Yellow"
     GraphicsWindow.DrawText(400, 610, "NOTHING FOUND")
@@ -144,7 +153,6 @@ EndSub
 Sub UpdateFight
   key = GraphicsWindow.LastKey
   If key = "E" Then
-    game["state"] = "ingame"
     EscapeMonster()
     game["state"] = "ingame"
     DrawUI()
@@ -202,11 +210,12 @@ Sub EnterRoom
     Endif  
   EndFor
  
-  If player["rooms"] > 2 Then 
-    If Math.GetRandomNumber(100) > 80 Then
+  If player["rooms"] > 2 Then
+    dice = Math.GetRandomNumber(12)
+    If dice = 1 Or dice = 4 Or dice = 6 Then
       Shapes.ShowShape(chest)
       room["chest"] = 1
-    ElseIf Math.GetRandomNumber(100) > 90 Then
+    ElseIf dice = 2 Or dice = 8 Then
       Shapes.ShowShape(monster)
       room["monster"] = 1
     EndIf
@@ -248,8 +257,9 @@ Sub LoadInGame
   player["damage"] = 0
   player["armor"] = 0
   player["rooms"] = 0
-  player["damage_add"] = 0
-  player["armor_add"] = 0
+  player["new_damage"] = 0
+  player["new_armor"] = 0
+  player["health_poison"] = 0
   
   room = Shapes.AddImage("C:\DM\room.png")
   doors[1] = Shapes.AddImage("C:\DM\door_up.png")
