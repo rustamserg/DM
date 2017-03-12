@@ -10,8 +10,7 @@ GraphicsWindow.CanResize = "False"
 GraphicsWindow.Show()
 
 game["state"] = "pregame"
-game["record"] = 0
-
+game["rooms"] = 20 ' number of rooms to escape
 LoadPreGame()
 
 '==========================================================
@@ -54,7 +53,11 @@ Sub LoadPreGame
   GraphicsWindow.BrushColor = "Green"
   GraphicsWindow.FontSize = 16
   GraphicsWindow.FontBold = 0
-  GraphicsWindow.DrawText(GraphicsWindow.Width/2 - 100, GraphicsWindow.Height/2, "PRESS Q TO ENTER THE MAZE")
+  GraphicsWindow.DrawText(270, 300, "Evil wizard thrown you into the magic maze")
+  GraphicsWindow.DrawText(280, 330, "You have to survive " + game["rooms"] + " rooms to escape")
+  
+  GraphicsWindow.BrushColor = "Yellow"
+  GraphicsWindow.DrawText(320, 370, "Press Q to enter the maze")
 EndSub
 
 Sub UpdatePreGame
@@ -76,10 +79,10 @@ Sub LoadInGame
     room[i] = 1
   EndFor
 
-  player["health"] = 200
+  player["health"] = 110
   player["damage"] = 10
   player["armor"] = 10
-  player["rooms"] = 0
+  player["rooms"] = game["rooms"]
   player["new_damage"] = 0
   player["new_armor"] = 0
   player["health_poison"] = 0
@@ -99,41 +102,43 @@ EndSub
 
 Sub UpdateInGame
   key = GraphicsWindow.LastKey
-  If key = "W" Then
+  If key = "Up" Then
     If room[1] = 1 Then
       room["open_door"] = 3
       EnterRoom()
     EndIf
   EndIf
-  If key = "D" Then
+  If key = "Right" Then
     If room[4] = 1 Then
       room["open_door"] = 2
       EnterRoom()
     EndIf
   EndIf
-  If key = "S" Then
+  If key = "Down" Then
     If room[3] = 1 Then
       room["open_door"] = 1
       EnterRoom()
     EndIf
   EndIf
-  If key = "A" Then
+  If key = "Left" Then
     If room[2] = 1 Then
       room["open_door"] = 4
       EnterRoom()
     EndIf
   EndIf
+  
+  DrawGame()
 
-  If player["health"] < 1 Then
+  If player["health"] < 1 Or player["rooms"] = 0 Then
     game["state"] = "postgame"
     LoadPostGame()
   ElseIf room["chest"] = 1 Then
     game["state"] = "open_chest"
+    LoadChest()
   ElseIf room["monster"] = 1 Then
     game["state"] = "fight_monster"
+    LoadFight()
   EndIf
-
-  DrawGame()
 EndSub
 
 Sub EnterRoom
@@ -152,7 +157,7 @@ Sub EnterRoom
     Endif  
   EndFor
  
-  If player["rooms"] > 2 Then
+  If player["rooms"] < game["rooms"] Then
     dice = Math.GetRandomNumber(12)
     If dice = 1 Or dice = 4 Or dice = 6 Then
       room["chest"] = 1
@@ -162,7 +167,7 @@ Sub EnterRoom
   EndIf
   
   player["health"] = player["health"] - 10
-  player["rooms"] = player["rooms"] + 1
+  player["rooms"] = player["rooms"] - 1
 EndSub
 
 Sub DrawGame
@@ -195,8 +200,8 @@ Sub DrawRoom
 EndSub
 
 Sub DrawUI
-  GraphicsWindow.BrushColor = GraphicsWindow.GetColorFromRGB(10, 10, 10)
-  GraphicsWindow.FillRectangle(0, 600, GraphicsWindow.Width, GraphicsWindow.Height - 600)
+  GraphicsWindow.BrushColor = GraphicsWindow.GetColorFromRGB(0, 0, 0)
+  GraphicsWindow.FillRectangle(0, 0, GraphicsWindow.Width, GraphicsWindow.Height)
   GraphicsWindow.BrushColor = "Green"
   GraphicsWindow.FontSize = 16
   GraphicsWindow.FontBold = 0
@@ -205,18 +210,18 @@ Sub DrawUI
   GraphicsWindow.DrawText(10, 650, "Armor: " + player["armor"])
   GraphicsWindow.DrawText(10, 670, "Rooms: " + player["rooms"])
   
-  If game["state"] = "open_chest" Then
-    GraphicsWindow.BrushColor = "Red"
-    GraphicsWindow.DrawText(300, 610, "PRESS 'Q' TO OPEN CHEST OR 'E' TO IGNORE")
-  ElseIf game["state"] = "fight_monster" Then
-    GraphicsWindow.BrushColor = "Red"
-    GraphicsWindow.DrawText(300, 610, "PRESS 'Q' TO FIGHT MONSTER OR 'E' TO ESCAPE")
-  EndIf
+  GraphicsWindow.BrushColor = "Yellow"
+  GraphicsWindow.DrawText(300, 610, "Use arrow keys to move")
 EndSub
 
 '==========================================================
 ' OPEN CHEST STATE
 '==========================================================
+Sub LoadChest
+    GraphicsWindow.BrushColor = "Red"
+    GraphicsWindow.DrawText(300, 630, "Press Q to open the chest or E to ignore")
+EndSub
+
 Sub UpdateChest
   key = GraphicsWindow.LastKey
   If key = "E" Then
@@ -262,26 +267,30 @@ EndSub
 
 Sub DrawChestResult
   If player["new_damage"] > 0 Then
-    GraphicsWindow.BrushColor = "Yellow"
-    GraphicsWindow.DrawText(300, 610, "FOUND NEW WEAPON, DAMAGE INCREASED TO " + player["new_damage"])
+    GraphicsWindow.BrushColor = "Green"
+    GraphicsWindow.DrawText(300, 630, "Found new weapon, damage increased " + player["new_damage"])
     player["new_damage"] = 0
   ElseIf player["new_armor"] > 0 Then
-    GraphicsWindow.BrushColor = "Yellow"
-    GraphicsWindow.DrawText(300, 610, "FOUND NEW ARMOR, INCREASED TO " + player["new_armor"])
+    GraphicsWindow.BrushColor = "Green"
+    GraphicsWindow.DrawText(300, 630, "Found new armor, increased to " + player["new_armor"])
     player["new_armor"] = 0
   ElseIf player["health_poison"] > 0 Then
     GraphicsWindow.BrushColor = "Red"
-    GraphicsWindow.DrawText(300, 610, "CHEST WAS POISONED, HEALTH DAMAGE " + player["health_poison"])
+    GraphicsWindow.DrawText(300, 630, "Chest was poisoned, health damaged " + player["health_poison"])
     player["health_poison"] = 0
   Else
-    GraphicsWindow.BrushColor = "Yellow"
-    GraphicsWindow.DrawText(300, 610, "NOTHING FOUND")
+    GraphicsWindow.BrushColor = "Blue"
+    GraphicsWindow.DrawText(300, 630, "Nothing found")
   EndIf
 EndSub
 
 '==========================================================
 ' FIGHT MONSTER STATE
 '==========================================================
+Sub LoadFight
+  GraphicsWindow.BrushColor = "Red"
+  GraphicsWindow.DrawText(300, 630, "Press Q to fight monster or E to escape")
+EndSub
 
 Sub UpdateFight
   key = GraphicsWindow.LastKey
@@ -347,21 +356,21 @@ EndSub
 
 Sub DrawFightResult
   GraphicsWindow.BrushColor = "Yellow"
-  GraphicsWindow.DrawText(300, 610, "Monster attack: " + monster["stat_damage"])
-  GraphicsWindow.DrawText(300, 630, "Monster health: " + monster["stat_health"])
+  GraphicsWindow.DrawText(300, 630, "Monster attack: " + monster["stat_damage"])
+  GraphicsWindow.DrawText(300, 650, "Monster health: " + monster["stat_health"])
 
-  GraphicsWindow.BrushColor = "Green"
-  GraphicsWindow.DrawText(300, 650, "First attack: " + fight["turn"])
-  GraphicsWindow.DrawText(300, 670, "Damage received: " + fight["monster_damage"])
-  GraphicsWindow.DrawText(300, 690, "Damage given: " + fight["player_damage"])
+  GraphicsWindow.BrushColor = "Blue"
+  GraphicsWindow.DrawText(300, 670, "First attack: " + fight["turn"])
+  GraphicsWindow.DrawText(300, 690, "Damage received: " + fight["monster_damage"])
+  GraphicsWindow.DrawText(300, 710, "Damage given: " + fight["player_damage"])
   
   If player["health"] = 1 Then
     GraphicsWindow.BrushColor = "Red"
-    GraphicsWindow.DrawText(500, 610, "Monster is run out, but you are too weak")
+    GraphicsWindow.DrawText(300, 730, "Monster is run out")
   Else
     GraphicsWindow.BrushColor = "Green"
-    GraphicsWindow.DrawText(500, 610, "Monster is slained")
-    GraphicsWindow.DrawText(500, 630, "Get food from monster " + fight["player_health"])
+    GraphicsWindow.DrawText(300, 730, "Monster is slained")
+    GraphicsWindow.DrawText(300, 750, "Get food from monster " + fight["player_health"])
   EndIf
 EndSub
 
@@ -381,11 +390,11 @@ EndSub
 Sub DrawEscapeResult
   If escape["success"] = "True" Then
     GraphicsWindow.BrushColor = "Green"
-    GraphicsWindow.DrawText(300, 610, "YOU ESCAPED")
+    GraphicsWindow.DrawText(300, 630, "You escaped")
   Else
     GraphicsWindow.BrushColor = "Red"
-    GraphicsWindow.DrawText(300, 610, "YOU FAILED")
-    GraphicsWindow.DrawText(300, 630, "Loose health " + escape["player_health"])
+    GraphicsWindow.DrawText(300, 630, "You failed")
+    GraphicsWindow.DrawText(300, 650, "Health damaged " + escape["player_health"])
   EndIf
 EndSub
 
@@ -395,20 +404,21 @@ EndSub
 Sub LoadPostGame
   GraphicsWindow.Clear()
   
-  GraphicsWindow.BrushColor = GraphicsWindow.GetColorFromRGB(50, 50, 50)
-  GraphicsWindow.FillRectangle(0, 0, 800, 700)
-  GraphicsWindow.BrushColor = "Red"
+  GraphicsWindow.BrushColor = GraphicsWindow.GetColorFromRGB(0, 50, 50)
+  GraphicsWindow.FillRectangle(0, 0, GraphicsWindow.Width, GraphicsWindow.Height)
   GraphicsWindow.FontSize = 16
   GraphicsWindow.FontBold = 0
-  GraphicsWindow.DrawText(180, 300, "YOU DIED. PRESS Q TO TRY AGAIN OR ESCAPE TO EXIT")
   
-  GraphicsWindow.BrushColor = "Green"
-  If game["record"] < player["rooms"] Then
-    game["record"] = player["rooms"]
-    GraphicsWindow.DrawText(230, 330, "NEW RECORD. SURVIVED ROOMS " + game["record"])
+  If player["rooms"] = 0 Then
+    GraphicsWindow.BrushColor = "Green"
+    GraphicsWindow.DrawText(265, 300, "Congrat, you escaped the maze")
   Else
-    GraphicsWindow.DrawText(230, 330, "SURVIVED ROOMS " + player["rooms"] + ". HIGHEST RECORD " + game["record"])
+    GraphicsWindow.BrushColor = "Red"
+    GraphicsWindow.DrawText(220, 300, "You are too tired and failed to escape the maze")
   EndIf
+  
+  GraphicsWindow.BrushColor = "Yellow"
+  GraphicsWindow.DrawText(260, 350, "Press Q to try again or Esc to exit")
 EndSub  
 
 Sub UpdatePostGame
