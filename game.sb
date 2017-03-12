@@ -214,7 +214,7 @@ Sub DrawUI
   GraphicsWindow.DrawText(110, 670, "Rooms: " + player["rooms"])
   
   GraphicsWindow.BrushColor = "Yellow"
-  GraphicsWindow.DrawText(300, 610, "Use arrow keys to move")
+  GraphicsWindow.DrawText(450, 610, "Use arrow keys to move")
 EndSub
 
 '==========================================================
@@ -222,7 +222,7 @@ EndSub
 '==========================================================
 Sub LoadChest
     GraphicsWindow.BrushColor = "Red"
-    GraphicsWindow.DrawText(300, 630, "Press Q to open the chest or E to ignore")
+    GraphicsWindow.DrawText(450, 630, "Press Q to open the chest or E to ignore")
 EndSub
 
 Sub UpdateChest
@@ -271,19 +271,19 @@ EndSub
 Sub DrawChestResult
   If player["new_damage"] > 0 Then
     GraphicsWindow.BrushColor = "Green"
-    GraphicsWindow.DrawText(300, 630, "Found new weapon, damage increased " + player["new_damage"])
+    GraphicsWindow.DrawText(450, 630, "Found new weapon, damage increased " + player["new_damage"])
     player["new_damage"] = 0
   ElseIf player["new_armor"] > 0 Then
     GraphicsWindow.BrushColor = "Green"
-    GraphicsWindow.DrawText(300, 630, "Found new armor, increased to " + player["new_armor"])
+    GraphicsWindow.DrawText(450, 630, "Found new armor, increased to " + player["new_armor"])
     player["new_armor"] = 0
   ElseIf player["health_poison"] > 0 Then
     GraphicsWindow.BrushColor = "Red"
-    GraphicsWindow.DrawText(300, 630, "Chest was poisoned, health damaged " + player["health_poison"])
+    GraphicsWindow.DrawText(450, 630, "Chest was poisoned, health damaged " + player["health_poison"])
     player["health_poison"] = 0
   Else
     GraphicsWindow.BrushColor = "Blue"
-    GraphicsWindow.DrawText(300, 630, "Nothing found")
+    GraphicsWindow.DrawText(450, 630, "Nothing found")
   EndIf
 EndSub
 
@@ -292,7 +292,7 @@ EndSub
 '==========================================================
 Sub LoadFight
   GraphicsWindow.BrushColor = "Red"
-  GraphicsWindow.DrawText(300, 630, "Press Q to fight monster or E to escape")
+  GraphicsWindow.DrawText(450, 630, "Press Q to fight monster or E to escape")
 EndSub
 
 Sub UpdateFight
@@ -359,21 +359,21 @@ EndSub
 
 Sub DrawFightResult
   GraphicsWindow.BrushColor = "Yellow"
-  GraphicsWindow.DrawText(300, 630, "Monster attack: " + monster["stat_damage"])
-  GraphicsWindow.DrawText(300, 650, "Monster health: " + monster["stat_health"])
+  GraphicsWindow.DrawText(450, 630, "Monster attack: " + monster["stat_damage"])
+  GraphicsWindow.DrawText(450, 650, "Monster health: " + monster["stat_health"])
 
   GraphicsWindow.BrushColor = "Blue"
-  GraphicsWindow.DrawText(300, 670, "First attack: " + fight["turn"])
-  GraphicsWindow.DrawText(300, 690, "Damage received: " + fight["monster_damage"])
-  GraphicsWindow.DrawText(300, 710, "Damage given: " + fight["player_damage"])
+  GraphicsWindow.DrawText(450, 670, "First attack: " + fight["turn"])
+  GraphicsWindow.DrawText(450, 690, "Damage received: " + fight["monster_damage"])
+  GraphicsWindow.DrawText(450, 710, "Damage given: " + fight["player_damage"])
   
   If player["health"] = 1 Then
     GraphicsWindow.BrushColor = "Red"
-    GraphicsWindow.DrawText(300, 730, "Monster is run out")
+    GraphicsWindow.DrawText(450, 730, "Monster is run out")
   Else
     GraphicsWindow.BrushColor = "Green"
-    GraphicsWindow.DrawText(300, 730, "Monster is slained")
-    GraphicsWindow.DrawText(300, 750, "Get food from monster " + fight["player_health"])
+    GraphicsWindow.DrawText(450, 730, "Monster is slained")
+    GraphicsWindow.DrawText(450, 750, "Get food from monster " + fight["player_health"])
   EndIf
 EndSub
 
@@ -393,11 +393,11 @@ EndSub
 Sub DrawEscapeResult
   If escape["success"] = "True" Then
     GraphicsWindow.BrushColor = "Green"
-    GraphicsWindow.DrawText(300, 630, "You escaped")
+    GraphicsWindow.DrawText(450, 630, "You escaped")
   Else
     GraphicsWindow.BrushColor = "Red"
-    GraphicsWindow.DrawText(300, 630, "You failed")
-    GraphicsWindow.DrawText(300, 650, "Health damaged " + escape["player_health"])
+    GraphicsWindow.DrawText(450, 630, "You failed")
+    GraphicsWindow.DrawText(450, 650, "Health damaged " + escape["player_health"])
   EndIf
 EndSub
 
