@@ -96,7 +96,10 @@ Sub LoadInGame
   monster_image = Shapes.AddImage("C:\DM\monster.png")
   
   hero_image = Shapes.AddImage("C:\DM\hero.png")
+  hero_equip_image = Shapes.AddImage("C:\DM\hero_equipped.png")
   Shapes.Move(hero_image, 0, 610)
+  Shapes.Move(hero_equip_image, 0, 610)
+  Shapes.HideShape(hero_equip_image)
   
   room["open_door"] = 3
   EnterRoom()
@@ -277,6 +280,7 @@ Sub DrawChestResult
     GraphicsWindow.BrushColor = "Green"
     GraphicsWindow.DrawText(450, 630, "Found new armor, increased to " + player["new_armor"])
     player["new_armor"] = 0
+    Shapes.ShowShape(hero_equip_image)
   ElseIf player["health_poison"] > 0 Then
     GraphicsWindow.BrushColor = "Red"
     GraphicsWindow.DrawText(450, 630, "Chest was poisoned, health damaged " + player["health_poison"])
