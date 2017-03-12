@@ -95,6 +95,9 @@ Sub LoadInGame
   chest_image = Shapes.AddImage("C:\DM\chest.png")
   monster_image = Shapes.AddImage("C:\DM\monster.png")
   
+  hero_image = Shapes.AddImage("C:\DM\hero.png")
+  Shapes.Move(hero_image, 0, 610)
+  
   room["open_door"] = 3
   EnterRoom()
   DrawGame()
@@ -205,10 +208,10 @@ Sub DrawUI
   GraphicsWindow.BrushColor = "Green"
   GraphicsWindow.FontSize = 16
   GraphicsWindow.FontBold = 0
-  GraphicsWindow.DrawText(10, 610, "Health: " + player["health"])
-  GraphicsWindow.DrawText(10, 630, "Damage: " + player["damage"])
-  GraphicsWindow.DrawText(10, 650, "Armor: " + player["armor"])
-  GraphicsWindow.DrawText(10, 670, "Rooms: " + player["rooms"])
+  GraphicsWindow.DrawText(110, 610, "Health: " + player["health"])
+  GraphicsWindow.DrawText(110, 630, "Damage: " + player["damage"])
+  GraphicsWindow.DrawText(110, 650, "Armor: " + player["armor"])
+  GraphicsWindow.DrawText(110, 670, "Rooms: " + player["rooms"])
   
   GraphicsWindow.BrushColor = "Yellow"
   GraphicsWindow.DrawText(300, 610, "Use arrow keys to move")
