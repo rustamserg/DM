@@ -87,16 +87,16 @@ Sub LoadInGame
   player["new_armor"] = 0
   player["health_poison"] = 0
   
-  room_image = Shapes.AddImage("C:\DM\room.png")
-  doors[1] = Shapes.AddImage("C:\DM\door_up.png")
-  doors[2] = Shapes.AddImage("C:\DM\door_left.png")
-  doors[3] = Shapes.AddImage("C:\DM\door_down.png")
-  doors[4] = Shapes.AddImage("C:\DM\door_right.png")
-  chest_image = Shapes.AddImage("C:\DM\chest.png")
-  monster_image = Shapes.AddImage("C:\DM\monster.png")
+  room_image = Shapes.AddImage(Program.Directory + "\room.png")
+  doors[1] = Shapes.AddImage(Program.Directory + "\door_up.png")
+  doors[2] = Shapes.AddImage(Program.Directory + "\door_left.png")
+  doors[3] = Shapes.AddImage(Program.Directory + "\door_down.png")
+  doors[4] = Shapes.AddImage(Program.Directory + "\door_right.png")
+  chest_image = Shapes.AddImage(Program.Directory + "\chest.png")
+  monster_image = Shapes.AddImage(Program.Directory + "\monster.png")
   
-  hero_image = Shapes.AddImage("C:\DM\hero.png")
-  hero_equip_image = Shapes.AddImage("C:\DM\hero_equipped.png")
+  hero_image = Shapes.AddImage(Program.Directory + "\hero.png")
+  hero_equip_image = Shapes.AddImage(Program.Directory + "\hero_equipped.png")
   Shapes.Move(hero_image, 0, 610)
   Shapes.Move(hero_equip_image, 0, 610)
   Shapes.HideShape(hero_equip_image)
