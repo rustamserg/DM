@@ -53,11 +53,14 @@ Sub LoadPreGame
   GraphicsWindow.BrushColor = "Green"
   GraphicsWindow.FontSize = 16
   GraphicsWindow.FontBold = 0
-  GraphicsWindow.DrawText(270, 300, "Evil wizard thrown you into the magic maze")
-  GraphicsWindow.DrawText(280, 330, "You have to survive " + game["rooms"] + " rooms to escape")
-  
+  GraphicsWindow.DrawText(100, 300, "Злой маг заточил вас в магическую башню")
+  GraphicsWindow.DrawText(100, 330, "Вам надо подняться на " + game["rooms"] + " этаж, чтобы выбраться")
+  GraphicsWindow.DrawText(100, 360, "На этажах вам будут попадаться сундуки и монстры")
+  GraphicsWindow.DrawText(100, 390, "В сундуках может быть броня или оружие. Осторожно, некоторые сундуки ядовиты")
+  GraphicsWindow.DrawText(100, 420, "От монстров можно сбежать. Но знайте монстры единственный способ добыть еду")
+  GraphicsWindow.DrawText(100, 450, "Каждый этаж отнимает у вас здоровье. Вам надо кушать, чтобы выжить")
   GraphicsWindow.BrushColor = "Yellow"
-  GraphicsWindow.DrawText(320, 370, "Press Q to enter the maze")
+  GraphicsWindow.DrawText(300, 550, "Нажмите Q для начала игры")
 EndSub
 
 Sub UpdatePreGame
@@ -211,13 +214,13 @@ Sub DrawUI
   GraphicsWindow.BrushColor = "Green"
   GraphicsWindow.FontSize = 16
   GraphicsWindow.FontBold = 0
-  GraphicsWindow.DrawText(110, 610, "Health: " + player["health"])
-  GraphicsWindow.DrawText(110, 630, "Damage: " + player["damage"])
-  GraphicsWindow.DrawText(110, 650, "Armor: " + player["armor"])
-  GraphicsWindow.DrawText(110, 670, "Rooms: " + player["rooms"])
+  GraphicsWindow.DrawText(110, 610, "Здоровье: " + player["health"])
+  GraphicsWindow.DrawText(110, 630, "Оружие: " + player["damage"])
+  GraphicsWindow.DrawText(110, 650, "Броня: " + player["armor"])
+  GraphicsWindow.DrawText(110, 670, "Этаж: " + (game["rooms"] - player["rooms"]))
   
   GraphicsWindow.BrushColor = "Yellow"
-  GraphicsWindow.DrawText(450, 610, "Use arrow keys to move")
+  GraphicsWindow.DrawText(400, 610, "Используйте стрелки, чтобы выбрать лестницу")
 EndSub
 
 '==========================================================
@@ -225,7 +228,7 @@ EndSub
 '==========================================================
 Sub LoadChest
     GraphicsWindow.BrushColor = "Red"
-    GraphicsWindow.DrawText(450, 630, "Press Q to open the chest or E to ignore")
+    GraphicsWindow.DrawText(400, 630, "Нажмите Q для открытия или E чтобы пропусить")
 EndSub
 
 Sub UpdateChest
@@ -274,20 +277,20 @@ EndSub
 Sub DrawChestResult
   If player["new_damage"] > 0 Then
     GraphicsWindow.BrushColor = "Green"
-    GraphicsWindow.DrawText(450, 630, "Found new weapon, damage increased " + player["new_damage"])
+    GraphicsWindow.DrawText(400, 630, "Найдено новое оружие, урон увеличен " + player["new_damage"])
     player["new_damage"] = 0
   ElseIf player["new_armor"] > 0 Then
     GraphicsWindow.BrushColor = "Green"
-    GraphicsWindow.DrawText(450, 630, "Found new armor, increased to " + player["new_armor"])
+    GraphicsWindow.DrawText(400, 630, "Найдена новая броня, защита увеличена " + player["new_armor"])
     player["new_armor"] = 0
     Shapes.ShowShape(hero_equip_image)
   ElseIf player["health_poison"] > 0 Then
     GraphicsWindow.BrushColor = "Red"
-    GraphicsWindow.DrawText(450, 630, "Chest was poisoned, health damaged " + player["health_poison"])
+    GraphicsWindow.DrawText(400, 630, "Сундук отравлен, урон здоровью " + player["health_poison"])
     player["health_poison"] = 0
   Else
     GraphicsWindow.BrushColor = "Blue"
-    GraphicsWindow.DrawText(450, 630, "Nothing found")
+    GraphicsWindow.DrawText(400, 630, "Ничего не найдено")
   EndIf
 EndSub
 
@@ -296,7 +299,7 @@ EndSub
 '==========================================================
 Sub LoadFight
   GraphicsWindow.BrushColor = "Red"
-  GraphicsWindow.DrawText(450, 630, "Press Q to fight monster or E to escape")
+  GraphicsWindow.DrawText(400, 630, "Нажмите Q для сражения или E чтобы сбежать")
 EndSub
 
 Sub UpdateFight
@@ -328,7 +331,7 @@ Sub FightMonster
   
   dice = Math.GetRandomNumber(12)
   If dice = 2 Or dice = 4 Or dice = 12 Then
-    fight["turn"] = "player"
+    fight["turn"] = "игрок"
     While monster["health"] > 0 And player["health"] > 1
       player_dmg = Math.GetRandomNumber(player["damage"])
       player_arm = Math.GetRandomNumber(player["armor"])
@@ -341,7 +344,7 @@ Sub FightMonster
       EndIf
     EndWhile
   Else
-    fight["turn"] = "monster"
+    fight["turn"] = "монстр"
     While monster["health"] > 0 And player["health"] > 1
       player_dmg = Math.GetRandomNumber(player["damage"])
       player_arm = Math.GetRandomNumber(player["armor"])
@@ -363,21 +366,21 @@ EndSub
 
 Sub DrawFightResult
   GraphicsWindow.BrushColor = "Yellow"
-  GraphicsWindow.DrawText(450, 630, "Monster attack: " + monster["stat_damage"])
-  GraphicsWindow.DrawText(450, 650, "Monster health: " + monster["stat_health"])
+  GraphicsWindow.DrawText(400, 630, "Атака монстра: " + monster["stat_damage"])
+  GraphicsWindow.DrawText(400, 650, "Здоровье монстра: " + monster["stat_health"])
 
   GraphicsWindow.BrushColor = "Blue"
-  GraphicsWindow.DrawText(450, 670, "First attack: " + fight["turn"])
-  GraphicsWindow.DrawText(450, 690, "Damage received: " + fight["monster_damage"])
-  GraphicsWindow.DrawText(450, 710, "Damage given: " + fight["player_damage"])
+  GraphicsWindow.DrawText(400, 670, "Первым атаковал: " + fight["turn"])
+  GraphicsWindow.DrawText(400, 690, "Урон получен: " + fight["monster_damage"])
+  GraphicsWindow.DrawText(400, 710, "Урон нанесен: " + fight["player_damage"])
   
   If player["health"] = 1 Then
     GraphicsWindow.BrushColor = "Red"
-    GraphicsWindow.DrawText(450, 730, "Monster is run out")
+    GraphicsWindow.DrawText(400, 730, "Монстр сбежал")
   Else
     GraphicsWindow.BrushColor = "Green"
-    GraphicsWindow.DrawText(450, 730, "Monster is slained")
-    GraphicsWindow.DrawText(450, 750, "Get food from monster " + fight["player_health"])
+    GraphicsWindow.DrawText(400, 730, "Монстр повержен")
+    GraphicsWindow.DrawText(400, 750, "Здоровье увеличено на " + fight["player_health"])
   EndIf
 EndSub
 
@@ -397,11 +400,11 @@ EndSub
 Sub DrawEscapeResult
   If escape["success"] = "True" Then
     GraphicsWindow.BrushColor = "Green"
-    GraphicsWindow.DrawText(450, 630, "You escaped")
+    GraphicsWindow.DrawText(450, 630, "Вы сбежали")
   Else
     GraphicsWindow.BrushColor = "Red"
-    GraphicsWindow.DrawText(450, 630, "You failed")
-    GraphicsWindow.DrawText(450, 650, "Health damaged " + escape["player_health"])
+    GraphicsWindow.DrawText(450, 630, "Вам не удалось сбежать")
+    GraphicsWindow.DrawText(450, 650, "Урон здоровью на " + escape["player_health"])
   EndIf
 EndSub
 
@@ -418,14 +421,14 @@ Sub LoadPostGame
   
   If player["rooms"] = 0 Then
     GraphicsWindow.BrushColor = "Green"
-    GraphicsWindow.DrawText(265, 300, "Congrat, you escaped the maze")
+    GraphicsWindow.DrawText(265, 300, "Поздравляем, вы сбежали из башни!")
   Else
     GraphicsWindow.BrushColor = "Red"
-    GraphicsWindow.DrawText(220, 300, "You are too tired and failed to escape the maze")
+    GraphicsWindow.DrawText(220, 300, "Вы очень устали и не можете дальше идти")
   EndIf
   
   GraphicsWindow.BrushColor = "Yellow"
-  GraphicsWindow.DrawText(260, 350, "Press Q to try again or Esc to exit")
+  GraphicsWindow.DrawText(200, 350, "Нажмите Q попробывать снова или Esc для выхода")
 EndSub  
 
 Sub UpdatePostGame
